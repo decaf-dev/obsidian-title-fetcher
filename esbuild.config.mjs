@@ -1,6 +1,8 @@
 import builtins from "builtin-modules";
 import esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
+import fs from "fs";
+import path from "path";
 import process from "process";
 import { sveltePreprocess } from "svelte-preprocess";
 
@@ -16,12 +18,15 @@ const rebuildPlugin = {
 	name: "rebuild-handler",
 	setup(build) {
 		build.onEnd(async () => {
+			console.log("Copying manifest.json to dist folder");
 			try {
 				await fs.promises.copyFile(
 					path.join(path.resolve(), "manifest.json"),
 					path.join(path.resolve(), "dist", "manifest.json")
 				);
-			} catch (err) {}
+			} catch (err) {
+				console.error(err);
+			}
 		});
 	},
 };
