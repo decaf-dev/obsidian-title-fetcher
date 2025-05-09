@@ -15,60 +15,15 @@ export default class TitleFetcherPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
+		this.addRibbonIcon("file-code-2", "Rename to URL title", () => {
+			this.renameToUrlTitle();
+		});
+
 		this.addCommand({
-			id: "fetch-title-from-url-property",
-			name: "Fetch title from URL property",
+			id: "rename-to-url-title",
+			name: "Rename to URL title",
 			callback: async () => {
-				const activeFile = this.app.workspace.getActiveFile();
-				if (!activeFile) {
-					new Notice("No file is open");
-					return;
-				}
-
-				const frontmatter =
-					this.app.metadataCache.getFileCache(
-						activeFile
-					)?.frontmatter;
-				if (!frontmatter) {
-					new Notice("No frontmatter found in the current file");
-					return;
-				}
-
-				const url = frontmatter.url;
-				if (!url) {
-					new Notice("No url property found in the current file");
-					return;
-				}
-
-				const title = await fetchTitleFromUrl(url);
-				if (!title) {
-					new Notice("Failed to fetch title from URL");
-					return;
-				}
-
-				try {
-					const formattedTitle = formatTitleForMacOS(title);
-
-					let formattedTitleWithExtension = "";
-					if (activeFile.parent) {
-						formattedTitleWithExtension = normalizePath(
-							`${activeFile.parent.path}/${formattedTitle}.md`
-						);
-					} else {
-						formattedTitleWithExtension = `${formattedTitle}.md`;
-					}
-
-					await this.app.vault.rename(
-						activeFile,
-						formattedTitleWithExtension
-					);
-					new Notice(
-						`Renamed file to ${formattedTitleWithExtension}`
-					);
-				} catch (error) {
-					new Notice("Failed to rename file");
-					console.error(error);
-				}
+				this.renameToUrlTitle();
 			},
 		});
 
@@ -77,6 +32,55 @@ export default class TitleFetcherPlugin extends Plugin {
 	}
 
 	onunload() {}
+
+	private async renameToUrlTitle() {
+		const activeFile = this.app.workspace.getActiveFile();
+		if (!activeFile) {
+			new Notice("No file is open");
+			return;
+		}
+
+		const frontmatter =
+			this.app.metadataCache.getFileCache(activeFile)?.frontmatter;
+		if (!frontmatter) {
+			new Notice("No frontmatter found in the current file");
+			return;
+		}
+
+		const url = frontmatter.url;
+		if (!url) {
+			new Notice("No url property found in the current file");
+			return;
+		}
+
+		const title = await fetchTitleFromUrl(url);
+		if (!title) {
+			new Notice("Failed to fetch title from URL");
+			return;
+		}
+
+		try {
+			const formattedTitle = formatTitleForMacOS(title);
+
+			let formattedTitleWithExtension = "";
+			if (activeFile.parent) {
+				formattedTitleWithExtension = normalizePath(
+					`${activeFile.parent.path}/${formattedTitle}.md`
+				);
+			} else {
+				formattedTitleWithExtension = `${formattedTitle}.md`;
+			}
+
+			await this.app.vault.rename(
+				activeFile,
+				formattedTitleWithExtension
+			);
+			new Notice(`Renamed file to ${formattedTitleWithExtension}`);
+		} catch (error) {
+			new Notice("Failed to rename file");
+			console.error(error);
+		}
+	}
 
 	async loadSettings() {
 		this.settings = Object.assign(
