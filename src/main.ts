@@ -1,7 +1,6 @@
-import { Notice, Plugin } from "obsidian";
+import { Notice, Plugin, normalizePath } from "obsidian";
 import { fetchTitleFromUrl } from "./utils/http-utils";
 import { formatTitleForMacOS } from "./utils/title-utils";
-
 interface TitleFetcherSettings {
 	mySetting: string;
 }
@@ -49,8 +48,23 @@ export default class TitleFetcherPlugin extends Plugin {
 
 				try {
 					const formattedTitle = formatTitleForMacOS(title);
-					await this.app.vault.rename(activeFile, formattedTitle);
-					new Notice(`Renamed file to ${formattedTitle}`);
+
+					let formattedTitleWithExtension = "";
+					if (activeFile.parent) {
+						formattedTitleWithExtension = normalizePath(
+							`${activeFile.parent.path}/${formattedTitle}.md`
+						);
+					} else {
+						formattedTitleWithExtension = `${formattedTitle}.md`;
+					}
+
+					await this.app.vault.rename(
+						activeFile,
+						formattedTitleWithExtension
+					);
+					new Notice(
+						`Renamed file to ${formattedTitleWithExtension}`
+					);
 				} catch (error) {
 					new Notice("Failed to rename file");
 					console.error(error);
