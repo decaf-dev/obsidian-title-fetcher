@@ -1,7 +1,7 @@
 {
 	"id": "title-fetcher",
 	"name": "Title Fetcher",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"minAppVersion": "1.8.0",
 	"description": "Fetch the title of a URL from the web",
 	"author": "DecafDev",
