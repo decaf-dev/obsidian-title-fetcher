@@ -1,4 +1,4 @@
-import { Notice, Plugin, normalizePath } from "obsidian";
+import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
 import { fetchTitleFromUrl } from "./utils/http-utils";
 import { formatTitleForMacOS } from "./utils/title-utils";
 interface TitleFetcherSettings {
@@ -19,6 +19,20 @@ export default class TitleFetcherPlugin extends Plugin {
 			this.renameToUrlTitle();
 		});
 
+		this.registerEvent(
+			this.app.workspace.on("file-menu", (menu, file) => {
+				if (file instanceof TFolder) {
+					menu.addItem((item) => {
+						item.setTitle("Rename notes to URL titles")
+							.setIcon("file-code-2")
+							.onClick(async () => {
+								await this.renameFolderNotesToUrlTitle(file);
+							});
+					});
+				}
+			})
+		);
+
 		this.addCommand({
 			id: "rename-to-url-title",
 			name: "Rename to URL title",
@@ -33,15 +47,38 @@ export default class TitleFetcherPlugin extends Plugin {
 
 	onunload() {}
 
-	private async renameToUrlTitle() {
-		const activeFile = this.app.workspace.getActiveFile();
-		if (!activeFile) {
-			new Notice("No file is open");
-			return;
+	private async renameFolderNotesToUrlTitle(folder: TFolder) {
+		const markdownFiles = this.app.vault
+			.getMarkdownFiles()
+			.filter((file) => file.parent === folder);
+
+		const BATCH_SIZE = 3; // Process 3 files at a time
+
+		for (let i = 0; i < markdownFiles.length; i += BATCH_SIZE) {
+			const batch = markdownFiles.slice(i, i + BATCH_SIZE);
+			await Promise.allSettled(
+				batch.map((file) => this.renameToUrlTitle(file))
+			);
+
+			// Optional: small delay between batches to be respectful
+			if (i + BATCH_SIZE < markdownFiles.length) {
+				await new Promise((resolve) => setTimeout(resolve, 100));
+			}
+		}
+	}
+
+	private async renameToUrlTitle(file?: TFile) {
+		if (!file) {
+			const activeFile = this.app.workspace.getActiveFile();
+			if (!activeFile) {
+				new Notice("No file is open");
+				return;
+			}
+			file = activeFile;
 		}
 
 		const frontmatter =
-			this.app.metadataCache.getFileCache(activeFile)?.frontmatter;
+			this.app.metadataCache.getFileCache(file)?.frontmatter;
 		if (!frontmatter) {
 			new Notice("No frontmatter found in the current file");
 			return;
@@ -63,18 +100,15 @@ export default class TitleFetcherPlugin extends Plugin {
 			const formattedTitle = formatTitleForMacOS(title);
 
 			let formattedTitleWithExtension = "";
-			if (activeFile.parent) {
+			if (file.parent) {
 				formattedTitleWithExtension = normalizePath(
-					`${activeFile.parent.path}/${formattedTitle}.md`
+					`${file.parent.path}/${formattedTitle}.md`
 				);
 			} else {
 				formattedTitleWithExtension = `${formattedTitle}.md`;
 			}
 
-			await this.app.vault.rename(
-				activeFile,
-				formattedTitleWithExtension
-			);
+			await this.app.vault.rename(file, formattedTitleWithExtension);
 			new Notice(`Renamed file to ${formattedTitleWithExtension}`);
 		} catch (error) {
 			new Notice("Failed to rename file");
