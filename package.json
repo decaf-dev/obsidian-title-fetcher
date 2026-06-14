@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-title-fetcher",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Fetch the title of a URL from the web",
 	"main": "main.js",
 	"scripts": {
