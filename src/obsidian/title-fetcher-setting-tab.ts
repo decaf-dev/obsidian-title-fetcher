@@ -15,14 +15,15 @@ export default class TitleFetcherSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
+			.setName("Append number to duplicate file names")
+			.setDesc(
+				'If a note with the same title already exists, append the next available number (e.g. "Title 1") instead of failing.'
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.appendNumberOnDuplicate)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.appendNumberOnDuplicate = value;
 						await this.plugin.saveSettings();
 					})
 			);

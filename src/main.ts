@@ -1,12 +1,13 @@
 import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
+import TitleFetcherSettingTab from "./obsidian/title-fetcher-setting-tab";
 import { fetchTitleFromUrl } from "./utils/http-utils";
 import { formatTitleForMacOS } from "./utils/title-utils";
 interface TitleFetcherSettings {
-	mySetting: string;
+	appendNumberOnDuplicate: boolean;
 }
 
 const DEFAULT_SETTINGS: TitleFetcherSettings = {
-	mySetting: "default",
+	appendNumberOnDuplicate: true,
 };
 
 export default class TitleFetcherPlugin extends Plugin {
@@ -15,7 +16,7 @@ export default class TitleFetcherPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.addRibbonIcon("file-code-2", "Rename to URL title", () => {
+		this.addRibbonIcon("file-code-2", "Rename note from URL title", () => {
 			this.renameToUrlTitle();
 		});
 
@@ -23,26 +24,25 @@ export default class TitleFetcherPlugin extends Plugin {
 			this.app.workspace.on("file-menu", (menu, file) => {
 				if (file instanceof TFolder) {
 					menu.addItem((item) => {
-						item.setTitle("Rename notes to URL titles")
+						item.setTitle("Rename notes from URL titles")
 							.setIcon("file-code-2")
 							.onClick(async () => {
 								await this.renameFolderNotesToUrlTitle(file);
 							});
 					});
 				}
-			})
+			}),
 		);
 
 		this.addCommand({
 			id: "rename-to-url-title",
-			name: "Rename to URL title",
+			name: "Rename note from URL title",
 			callback: async () => {
 				this.renameToUrlTitle();
 			},
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		//this.addSettingTab(new TitleFetcherSettingTab(this.app, this));
+		this.addSettingTab(new TitleFetcherSettingTab(this.app, this));
 	}
 
 	onunload() {}
@@ -57,7 +57,7 @@ export default class TitleFetcherPlugin extends Plugin {
 		for (let i = 0; i < markdownFiles.length; i += BATCH_SIZE) {
 			const batch = markdownFiles.slice(i, i + BATCH_SIZE);
 			await Promise.allSettled(
-				batch.map((file) => this.renameToUrlTitle(file))
+				batch.map((file) => this.renameToUrlTitle(file)),
 			);
 
 			// Optional: small delay between batches to be respectful
@@ -99,20 +99,36 @@ export default class TitleFetcherPlugin extends Plugin {
 		try {
 			const formattedTitle = formatTitleForMacOS(title);
 
-			let formattedTitleWithExtension = "";
-			if (file.parent) {
-				formattedTitleWithExtension = normalizePath(
-					`${file.parent.path}/${formattedTitle}.md`
-				);
-			} else {
-				formattedTitleWithExtension = `${formattedTitle}.md`;
-			}
+			const targetPath = this.settings.appendNumberOnDuplicate
+				? this.resolveAvailablePath(file, formattedTitle)
+				: normalizePath(
+						file.parent
+							? `${file.parent.path}/${formattedTitle}.md`
+							: `${formattedTitle}.md`,
+					);
 
-			await this.app.vault.rename(file, formattedTitleWithExtension);
-			new Notice(`Renamed file to ${formattedTitleWithExtension}`);
+			await this.app.vault.rename(file, targetPath);
+			new Notice(`Renamed file to ${targetPath}`);
 		} catch (error) {
 			new Notice("Failed to rename file");
 			console.error(error);
+		}
+	}
+
+	private resolveAvailablePath(file: TFile, baseName: string): string {
+		const dir = file.parent ? file.parent.path : "";
+		const build = (name: string) =>
+			normalizePath(dir ? `${dir}/${name}.md` : `${name}.md`);
+
+		let candidate = build(baseName);
+		let counter = 1;
+		// Skip names already taken by a *different* file; renaming a file to its
+		// own current name is a no-op and must not get a number appended.
+		while (true) {
+			const existing = this.app.vault.getAbstractFileByPath(candidate);
+			if (!existing || existing.path === file.path) return candidate;
+			candidate = build(`${baseName} ${counter}`);
+			counter++;
 		}
 	}
 
@@ -120,7 +136,7 @@ export default class TitleFetcherPlugin extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData()
+			await this.loadData(),
 		);
 	}
 
