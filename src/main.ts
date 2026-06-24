@@ -1,7 +1,10 @@
 import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
 import TitleFetcherSettingTab from "./obsidian/title-fetcher-setting-tab";
 import { fetchTitleFromUrl } from "./utils/http-utils";
-import { formatTitleForMacOS } from "./utils/title-utils";
+import {
+	formatTitleForMacOS,
+	stripSocialMediaSuffixes,
+} from "./utils/title-utils";
 interface TitleFetcherSettings {
 	appendNumberOnDuplicate: boolean;
 }
@@ -97,7 +100,9 @@ export default class TitleFetcherPlugin extends Plugin {
 		}
 
 		try {
-			const formattedTitle = formatTitleForMacOS(title);
+			const formattedTitle = formatTitleForMacOS(
+				stripSocialMediaSuffixes(title),
+			);
 
 			const targetPath = this.settings.appendNumberOnDuplicate
 				? this.resolveAvailablePath(file, formattedTitle)
