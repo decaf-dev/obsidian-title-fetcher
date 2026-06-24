@@ -27,6 +27,23 @@ export const stripSocialMediaSuffixes = (value: string) => {
 		.trim();
 };
 
+// Shouted, all-caps names like "OLIVIA PARKER" read better as "Olivia Parker".
+// Only act when the value has uppercase letters but no lowercase ones, so ordinary
+// titles ("How to Brew Better Coffee") and intentional mixed case are left as
+// they are. Capitalizes the first letter after a space, hyphen, or apostrophe
+// so "MARY-JANE" -> "Mary-Jane" and "O'BRIEN" -> "O'Brien".
+export const titleCaseAllCaps = (value: string) => {
+	const hasUpper = /\p{Lu}/u.test(value);
+	const hasLower = /\p{Ll}/u.test(value);
+	if (!hasUpper || hasLower) {
+		return value;
+	}
+
+	return value
+		.toLowerCase()
+		.replace(/(^|[\s\-'’])(\p{L})/gu, (_, sep, ch) => sep + ch.toUpperCase());
+};
+
 export const formatTitleForMacOS = (value: string) => {
 	let result = value
 		.trim()

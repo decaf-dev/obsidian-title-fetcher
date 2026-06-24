@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { formatTitleForMacOS, stripSocialMediaSuffixes } from "./title-utils";
+import {
+	formatTitleForMacOS,
+	stripSocialMediaSuffixes,
+	titleCaseAllCaps,
+} from "./title-utils";
 
 describe("stripSocialMediaSuffixes", () => {
 	test("removes the Instagram suffix", () => {
@@ -64,6 +68,30 @@ describe("stripSocialMediaSuffixes", () => {
 		expect(stripSocialMediaSuffixes("How to Brew Better Coffee")).toBe(
 			"How to Brew Better Coffee",
 		);
+	});
+});
+
+describe("titleCaseAllCaps", () => {
+	test("title-cases an all-caps name", () => {
+		expect(titleCaseAllCaps("OLIVIA PARKER")).toBe("Olivia Parker");
+	});
+
+	test("capitalizes after hyphens and apostrophes", () => {
+		expect(titleCaseAllCaps("MARY-JANE O'BRIEN")).toBe("Mary-Jane O'Brien");
+	});
+
+	test("leaves a normal mixed-case title untouched", () => {
+		expect(titleCaseAllCaps("How to Brew Better Coffee")).toBe(
+			"How to Brew Better Coffee",
+		);
+	});
+
+	test("leaves an already title-cased name untouched", () => {
+		expect(titleCaseAllCaps("Olivia Parker")).toBe("Olivia Parker");
+	});
+
+	test("ignores values without letters", () => {
+		expect(titleCaseAllCaps("12345")).toBe("12345");
 	});
 });
 

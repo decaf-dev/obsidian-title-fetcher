@@ -4,6 +4,7 @@ import { fetchTitleFromUrl } from "./utils/http-utils";
 import {
 	formatTitleForMacOS,
 	stripSocialMediaSuffixes,
+	titleCaseAllCaps,
 } from "./utils/title-utils";
 interface TitleFetcherSettings {
 	appendNumberOnDuplicate: boolean;
@@ -101,7 +102,7 @@ export default class TitleFetcherPlugin extends Plugin {
 
 		try {
 			const formattedTitle = formatTitleForMacOS(
-				stripSocialMediaSuffixes(title),
+				titleCaseAllCaps(stripSocialMediaSuffixes(title)),
 			);
 
 			const targetPath = this.settings.appendNumberOnDuplicate
