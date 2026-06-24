@@ -5,6 +5,11 @@ const DEFAULT_TITLE = "Untitled";
 export const formatTitleForMacOS = (value: string) => {
 	let result = value
 		.trim()
+		// Strip Instagram's trailing " • Instagram photos and videos" suffix
+		.replace(/\s*[•·]\s*Instagram photos and videos\s*$/i, "")
+		// Strip Threads' trailing " • Threads, Say more" suffix
+		.replace(/\s*[•·]\s*Threads, Say more\s*$/i, "")
+		.trim()
 		// Strip control characters (newlines, tabs, etc.)
 		.replace(/[\x00-\x1f\x7f]/g, "")
 		// Colon is illegal in macOS filenames
