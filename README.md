@@ -11,7 +11,7 @@ Drop a `url` property in a note, run the command, and the file is renamed to the
   - The ribbon icon ("Rename note from URL property") renames the active note.
   - The command palette command **Rename note from URL property** renames the active note.
   - Right-clicking a folder offers **Rename notes from URL property**, which renames every markdown note directly inside that folder (processed in small batches to be respectful to servers).
-- **Title cleanup** — strips social-media suffixes (e.g. Instagram's `• Instagram photos and videos`, Threads' `• Threads, Say more`), decorative emoji, and trailing `(@handle)` mentions.
+- **Title cleanup** — strips social-media suffixes (e.g. Instagram's `• Instagram photos and videos`, Threads' `• Threads, Say more`) and decorative emoji. A trailing `(@handle)` is removed when a full first-and-last name precedes it (`Tom Cruise (@tomcruise)` → `Tom Cruise`) but kept when it's the only identifier (`Tom (@tomcruise)`). Shouted, all-caps names are title-cased (`OLIVIA PARKER` → `Olivia Parker`).
 - **Filesystem-safe names** — removes characters that are illegal on macOS or disallowed by Obsidian (`:`, `/`, `\`, `^`, `[`, `]`, `#`, `|`, control characters), collapses whitespace, and truncates to 255 characters.
 - **Duplicate handling** — when a note with the same title already exists, appends the next available number (`Title 1`, `Title 2`, …) instead of failing. This can be turned off in settings.
 

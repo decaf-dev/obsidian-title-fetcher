@@ -21,9 +21,13 @@ export const stripSocialMediaSuffixes = (value: string) => {
 		.replace(EMOJI_PATTERN, "")
 		// Collapse gaps left by removed emoji before detecting the handle
 		.replace(/\s+/g, " ")
-		// Strip a trailing "(@username)" handle, but only when other text
-		// precedes it (keep it when the handle is the entire title)
-		.replace(/(\S)\s*\(@[^)\s]+\)\s*$/, "$1")
+		// Strip a trailing "(@username)" handle only when it follows a full
+		// first-and-last name ("Tom Cruise (@tomcruise)" -> "Tom Cruise"). Keep
+		// the handle when only a single name precedes it ("Tom (@tomcruise)") or
+		// when the handle is the entire title, since it's the only identifier left.
+		.replace(/^(.*\S)\s*\(@[^)\s]+\)\s*$/, (match, name) =>
+			name.trim().split(/\s+/).length >= 2 ? name.trim() : match,
+		)
 		.trim();
 };
 

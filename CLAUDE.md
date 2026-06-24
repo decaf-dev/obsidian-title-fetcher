@@ -15,9 +15,10 @@ bun install      # install dependencies
 bun run dev      # esbuild watch build → dist/ (inline sourcemaps, no minify)
 bun run build    # tsc -noEmit type-check, then a minified production build → dist/
 bun run check    # svelte-check against tsconfig.json
+bun test         # run the unit tests (src/utils/*.test.ts) with bun:test
 ```
 
-There is no test suite. Verify changes with `bun run build` (which type-checks) before committing.
+Verify changes with `bun test` and `bun run build` (which type-checks) before committing. The unit tests currently cover the pure title-cleaning helpers in `src/utils/clean-title.ts`.
 
 ## Architecture
 
@@ -27,18 +28,19 @@ The entry point is `src/main.ts`; esbuild bundles it to `dist/main.js` and copie
   - `renameToUrlTitle(file?)` — reads the `url` frontmatter via `metadataCache`, fetches the title, cleans it, resolves a target path, and calls `vault.rename`. Surfaces all failures as `Notice` messages.
   - `renameFolderNotesToUrlTitle(folder)` — batch-renames markdown files directly in a folder, `BATCH_SIZE = 3` with a 100ms delay between batches.
   - `resolveAvailablePath(file, baseName)` — duplicate handling; appends ` 1`, ` 2`, … but treats the file's own current path as a no-op (never numbers a file against itself).
-- **`src/utils/http-utils.ts`** — `fetchTitleFromUrl(url)`. Uses Obsidian's `requestUrl` (clears `Cookie`), parses the HTML with `DOMParser`, returns the `<title>` text or `null`.
-- **`src/utils/title-utils.ts`** — pure string helpers, the place for filename/title-cleaning logic:
-  - `stripSocialMediaSuffixes(value)` — removes Instagram/Threads suffixes, emoji (`EMOJI_PATTERN`), and trailing `(@handle)`.
+- **`src/utils/fetch-page-title.ts`** — `fetchTitleFromUrl(url)`. Uses Obsidian's `requestUrl` (clears `Cookie`), parses the HTML with `DOMParser`, returns the `<title>` text or `null`.
+- **`src/utils/clean-title.ts`** — pure string helpers, the place for filename/title-cleaning logic:
+  - `stripSocialMediaSuffixes(value)` — removes Instagram/Threads suffixes and emoji (`EMOJI_PATTERN`). Strips a trailing `(@handle)` only when a full first-and-last name precedes it (`"Tom Cruise (@tomcruise)"` → `"Tom Cruise"`); keeps the handle for single-name titles (`"Tom (@tomcruise)"`) or when the handle is the entire title, since it's the only identifier left.
+  - `titleCaseAllCaps(value)` — title-cases shouted, all-uppercase names (`"OLIVIA PARKER"` → `"Olivia Parker"`), capitalizing after spaces, hyphens, and apostrophes. Only acts when the value has uppercase but no lowercase letters, so ordinary mixed-case titles are left untouched.
   - `formatTitleForMacOS(value)` — strips illegal/disallowed chars, collapses whitespace, trims leading/trailing dots, truncates to 255 chars by whole code points (so emoji aren't split), falls back to `"Untitled"`.
-  - These run in order: `formatTitleForMacOS(stripSocialMediaSuffixes(title))`.
+  - These run in order: `formatTitleForMacOS(titleCaseAllCaps(stripSocialMediaSuffixes(title)))`.
 - **`src/obsidian/title-fetcher-setting-tab.ts`** — the settings UI. One setting: `appendNumberOnDuplicate` (default `true`).
 - **`src/svelte/`** — currently empty (`.gitkeep`). Svelte tooling (`esbuild-svelte`, `svelte-preprocess`) is wired into the build for future UI components but nothing uses it yet.
 
 ## Conventions
 
 - TypeScript, strict null checks, tabs for indentation. Match the existing style.
-- Keep pure string/title logic in `src/utils/title-utils.ts` and Obsidian API calls in `main.ts` / the setting tab.
+- Keep pure string/title logic in `src/utils/clean-title.ts` and Obsidian API calls in `main.ts` / the setting tab.
 - User-facing errors go through `new Notice(...)`; unexpected errors also `console.error`.
 - Settings are persisted via `loadData`/`saveData` and merged over `DEFAULT_SETTINGS`.
 

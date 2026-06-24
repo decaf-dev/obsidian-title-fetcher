@@ -1,11 +1,11 @@
 import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
 import TitleFetcherSettingTab from "./obsidian/title-fetcher-setting-tab";
-import { fetchTitleFromUrl } from "./utils/http-utils";
+import { fetchTitleFromUrl } from "./utils/fetch-page-title";
 import {
 	formatTitleForMacOS,
 	stripSocialMediaSuffixes,
 	titleCaseAllCaps,
-} from "./utils/title-utils";
+} from "./utils/clean-title";
 interface TitleFetcherSettings {
 	appendNumberOnDuplicate: boolean;
 }

@@ -3,7 +3,7 @@ import {
 	formatTitleForMacOS,
 	stripSocialMediaSuffixes,
 	titleCaseAllCaps,
-} from "./title-utils";
+} from "./clean-title";
 
 describe("stripSocialMediaSuffixes", () => {
 	test("removes the Instagram suffix", () => {
@@ -29,6 +29,18 @@ describe("stripSocialMediaSuffixes", () => {
 	test("keeps a handle when it is the entire title", () => {
 		expect(stripSocialMediaSuffixes("(@noahbennett)")).toBe(
 			"(@noahbennett)",
+		);
+	});
+
+	test("keeps the handle when only a single name precedes it", () => {
+		expect(stripSocialMediaSuffixes("Ethan (@ethan.brooks)")).toBe(
+			"Ethan (@ethan.brooks)",
+		);
+	});
+
+	test("strips the handle when a first and last name precede it", () => {
+		expect(stripSocialMediaSuffixes("Ethan Brooks (@ethan.brooks)")).toBe(
+			"Ethan Brooks",
 		);
 	});
 
