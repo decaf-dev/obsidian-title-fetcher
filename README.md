@@ -57,7 +57,7 @@ The build outputs `main.js` and a copy of `manifest.json` to `dist/`.
 
 ## Notes
 
-- This plugin is **desktop only** (`isDesktopOnly: true`) and requires Obsidian `1.8.0` or later.
+- This plugin is **desktop only** (`isDesktopOnly: true`) and requires Obsidian `1.11.0` or later.
 - Filename sanitization is tuned for macOS; some other platforms allow characters that are stripped here.
 
 ## License

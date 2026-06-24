@@ -4,7 +4,7 @@ Guidance for working in this repository.
 
 ## What this is
 
-**Title Fetcher** is an Obsidian plugin that renames a note to the `<title>` of a URL stored in the note's frontmatter (`url:` property). It is desktop-only and targets Obsidian `1.8.0+`. Plugin id: `title-fetcher`.
+**Title Fetcher** is an Obsidian plugin that renames a note to the `<title>` of a URL stored in the note's frontmatter (`url:` property). It is desktop-only and targets Obsidian `1.11.0+`. Plugin id: `title-fetcher`.
 
 ## Commands
 
