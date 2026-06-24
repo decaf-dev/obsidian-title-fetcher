@@ -19,7 +19,7 @@ export default class TitleFetcherPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		this.addRibbonIcon("file-code-2", "Rename note from URL title", () => {
+		this.addRibbonIcon("file-code-2", "Rename note from URL property", () => {
 			this.renameToUrlTitle();
 		});
 
@@ -27,7 +27,7 @@ export default class TitleFetcherPlugin extends Plugin {
 			this.app.workspace.on("file-menu", (menu, file) => {
 				if (file instanceof TFolder) {
 					menu.addItem((item) => {
-						item.setTitle("Rename notes from URL titles")
+						item.setTitle("Rename notes from URL property")
 							.setIcon("file-code-2")
 							.onClick(async () => {
 								await this.renameFolderNotesToUrlTitle(file);
@@ -38,8 +38,8 @@ export default class TitleFetcherPlugin extends Plugin {
 		);
 
 		this.addCommand({
-			id: "rename-to-url-title",
-			name: "Rename note from URL title",
+			id: "rename-to-url-property",
+			name: "Rename note from URL property",
 			callback: async () => {
 				this.renameToUrlTitle();
 			},

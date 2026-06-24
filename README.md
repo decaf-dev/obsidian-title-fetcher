@@ -6,11 +6,11 @@ Drop a `url` property in a note, run the command, and the file is renamed to the
 
 ## Features
 
-- **Rename from a URL title** — fetches the `<title>` of the page at the note's `url` frontmatter property and renames the file to it.
+- **Rename from a URL property** — fetches the `<title>` of the page at the note's `url` frontmatter property and renames the file to it.
 - **Three ways to trigger it:**
-  - The ribbon icon ("Rename note from URL title") renames the active note.
-  - The command palette command **Rename note from URL title** renames the active note.
-  - Right-clicking a folder offers **Rename notes from URL titles**, which renames every markdown note directly inside that folder (processed in small batches to be respectful to servers).
+  - The ribbon icon ("Rename note from URL property") renames the active note.
+  - The command palette command **Rename note from URL property** renames the active note.
+  - Right-clicking a folder offers **Rename notes from URL property**, which renames every markdown note directly inside that folder (processed in small batches to be respectful to servers).
 - **Title cleanup** — strips social-media suffixes (e.g. Instagram's `• Instagram photos and videos`, Threads' `• Threads, Say more`), decorative emoji, and trailing `(@handle)` mentions.
 - **Filesystem-safe names** — removes characters that are illegal on macOS or disallowed by Obsidian (`:`, `/`, `\`, `^`, `[`, `]`, `#`, `|`, control characters), collapses whitespace, and truncates to 255 characters.
 - **Duplicate handling** — when a note with the same title already exists, appends the next available number (`Title 1`, `Title 2`, …) instead of failing. This can be turned off in settings.
@@ -25,10 +25,10 @@ Drop a `url` property in a note, run the command, and the file is renamed to the
    ---
    ```
 
-2. With that note open, click the ribbon icon or run **Rename note from URL title** from the command palette.
+2. With that note open, click the ribbon icon or run **Rename note from URL property** from the command palette.
 3. The note is renamed to the cleaned-up page title. A notice confirms the new path.
 
-To rename a whole folder at once, right-click the folder in the file explorer and choose **Rename notes from URL titles**. Notes without a `url` property are skipped.
+To rename a whole folder at once, right-click the folder in the file explorer and choose **Rename notes from URL property**. Notes without a `url` property are skipped.
 
 ## Settings
 
