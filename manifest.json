@@ -6,6 +6,5 @@
 	"description": "Fetch the title of a URL from the web",
 	"author": "DecafDev",
 	"authorUrl": "https://github.com/decaf-dev",
-	"fundingUrl": "https://ko-fi.com/decaf_dev",
 	"isDesktopOnly": true
 }

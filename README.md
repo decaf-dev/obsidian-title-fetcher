@@ -63,5 +63,3 @@ The build outputs `main.js` and a copy of `manifest.json` to `dist/`.
 ## License
 
 [MIT](LICENSE) © DecafDev
-
-If you find this plugin useful, you can support development on [Ko-fi](https://ko-fi.com/decaf_dev).
