@@ -2,16 +2,17 @@ import { Notice, Plugin, TFile, TFolder, normalizePath } from "obsidian";
 import TitleFetcherSettingTab from "./obsidian/title-fetcher-setting-tab";
 import { fetchTitleFromUrl } from "./utils/fetch-page-title";
 import {
+	buildDuplicateName,
 	formatTitleForMacOS,
 	stripSocialMediaSuffixes,
 	titleCaseAllCaps,
 } from "./utils/clean-title";
 interface TitleFetcherSettings {
-	appendNumberOnDuplicate: boolean;
+	appendDuplicateSuffix: boolean;
 }
 
 const DEFAULT_SETTINGS: TitleFetcherSettings = {
-	appendNumberOnDuplicate: true,
+	appendDuplicateSuffix: true,
 };
 
 export default class TitleFetcherPlugin extends Plugin {
@@ -105,7 +106,7 @@ export default class TitleFetcherPlugin extends Plugin {
 				titleCaseAllCaps(stripSocialMediaSuffixes(title)),
 			);
 
-			const targetPath = this.settings.appendNumberOnDuplicate
+			const targetPath = this.settings.appendDuplicateSuffix
 				? this.resolveAvailablePath(file, formattedTitle)
 				: normalizePath(
 						file.parent
@@ -129,21 +130,30 @@ export default class TitleFetcherPlugin extends Plugin {
 		let candidate = build(baseName);
 		let counter = 1;
 		// Skip names already taken by a *different* file; renaming a file to its
-		// own current name is a no-op and must not get a number appended.
+		// own current name is a no-op and must not get a suffix appended.
 		while (true) {
 			const existing = this.app.vault.getAbstractFileByPath(candidate);
 			if (!existing || existing.path === file.path) return candidate;
-			candidate = build(`${baseName} ${counter}`);
+			candidate = build(buildDuplicateName(baseName, counter));
 			counter++;
 		}
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData(),
-		);
+		const savedData = await this.loadData();
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, savedData);
+
+		// Migrate the pre-0.3 `appendNumberOnDuplicate` key so anyone who turned
+		// duplicate naming off keeps it off, then drop the stale key.
+		const legacy = savedData?.appendNumberOnDuplicate;
+		if (typeof legacy === "boolean") {
+			if (savedData?.appendDuplicateSuffix === undefined) {
+				this.settings.appendDuplicateSuffix = legacy;
+			}
+			delete (this.settings as unknown as Record<string, unknown>)
+				.appendNumberOnDuplicate;
+			await this.saveSettings();
+		}
 	}
 
 	async saveSettings() {

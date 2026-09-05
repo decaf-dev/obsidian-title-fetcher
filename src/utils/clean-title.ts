@@ -1,6 +1,7 @@
 const MAX_LENGTH_MAC_OS = 255;
 const MARKDOWN_EXTENSION = ".md";
 const DEFAULT_TITLE = "Untitled";
+const DUPLICATE_LABEL = "Duplicate";
 
 // Matches emoji and their modifiers: pictographs, regional-indicator flag
 // halves, skin-tone modifiers, variation selectors, and zero-width joiners
@@ -75,4 +76,25 @@ export const formatTitleForMacOS = (value: string) => {
 	}
 
 	return result || DEFAULT_TITLE;
+};
+
+// Names a note that collides with an existing one: the first collision becomes
+// "Title (Duplicate)", later ones "Title (Duplicate 2)", "Title (Duplicate 3)", …
+// The base is trimmed by whole code points when needed so the suffix always fits
+// inside the macOS filename budget (and emoji aren't split in half).
+export const buildDuplicateName = (baseName: string, index: number) => {
+	const suffix =
+		Number.isFinite(index) && index > 1
+			? ` (${DUPLICATE_LABEL} ${index})`
+			: ` (${DUPLICATE_LABEL})`;
+
+	const maxLength = MAX_LENGTH_MAC_OS - MARKDOWN_EXTENSION.length;
+	const suffixLength = [...suffix].length;
+	const characters = [...baseName];
+	const base =
+		characters.length + suffixLength > maxLength
+			? characters.slice(0, maxLength - suffixLength).join("").trim()
+			: baseName;
+
+	return `${base}${suffix}`;
 };
