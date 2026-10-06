@@ -25,6 +25,24 @@ export default class TitleFetcherSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.appendDuplicateSuffix = value;
 						await this.plugin.saveSettings();
+						// Re-render so the vault-wide toggle's disabled state follows.
+						this.display();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Check entire vault for duplicates")
+			.setDesc(
+				"Count a name as taken if any note in your vault has it, not just notes in the same folder. Requires \"Mark duplicate file names\" to be enabled."
+			)
+			.setDisabled(!this.plugin.settings.appendDuplicateSuffix)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.searchVaultForDuplicates)
+					.setDisabled(!this.plugin.settings.appendDuplicateSuffix)
+					.onChange(async (value) => {
+						this.plugin.settings.searchVaultForDuplicates = value;
+						await this.plugin.saveSettings();
 					})
 			);
 	}

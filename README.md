@@ -33,6 +33,7 @@ To rename a whole folder at once, right-click the folder in the file explorer an
 ## Settings
 
 - **Mark duplicate file names** (default: on) — if another note already has the name, add a number to the end: `My Note (1)`, then `(2)`, `(3)`, …. When off, the note keeps its old name.
+- **Check entire vault for duplicates** (default: off) — count a name as taken if any note in your vault has it, not just notes in the same folder. Requires **Mark duplicate file names** to be enabled.
 
 ## Installation
 
