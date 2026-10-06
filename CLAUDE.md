@@ -27,13 +27,13 @@ The entry point is `src/main.ts`; esbuild bundles it to `dist/main.js` and copie
 - **`src/main.ts`** — `TitleFetcherPlugin`. Registers the ribbon icon, the `rename-to-url-title` command, the folder context-menu item, and the settings tab. Holds the rename logic:
   - `renameToUrlTitle(file?)` — reads the `url` frontmatter via `metadataCache`, fetches the title, cleans it, resolves a target path, and calls `vault.rename`. Surfaces all failures as `Notice` messages.
   - `renameFolderNotesToUrlTitle(folder)` — batch-renames markdown files directly in a folder, `BATCH_SIZE = 3` with a 100ms delay between batches.
-  - `resolveAvailablePath(file, baseName)` — duplicate handling; appends ` (Duplicate)`, ` (Duplicate 2)`, … via `buildDuplicateName` but treats the file's own current path as a no-op (never marks a file a duplicate of itself).
+  - `resolveAvailablePath(file, baseName)` — duplicate handling; appends ` (1)`, ` (2)`, … via `buildDuplicateName` but treats the file's own current path as a no-op (never marks a file a duplicate of itself).
 - **`src/utils/fetch-page-title.ts`** — `fetchTitleFromUrl(url)`. Uses Obsidian's `requestUrl` (clears `Cookie`), parses the HTML with `DOMParser`, returns the `<title>` text or `null`.
 - **`src/utils/clean-title.ts`** — pure string helpers, the place for filename/title-cleaning logic:
   - `stripSocialMediaSuffixes(value)` — removes Instagram/Threads suffixes and emoji (`EMOJI_PATTERN`). Strips a trailing `(@handle)` only when a full first-and-last name precedes it (`"Tom Cruise (@tomcruise)"` → `"Tom Cruise"`); keeps the handle for single-name titles (`"Tom (@tomcruise)"`) or when the handle is the entire title, since it's the only identifier left.
   - `titleCaseAllCaps(value)` — title-cases shouted, all-uppercase names (`"OLIVIA PARKER"` → `"Olivia Parker"`), capitalizing after spaces, hyphens, and apostrophes. Only acts when the value has uppercase but no lowercase letters, so ordinary mixed-case titles are left untouched.
   - `formatTitleForMacOS(value)` — strips illegal/disallowed chars, collapses whitespace, trims leading/trailing dots, truncates to 255 chars by whole code points (so emoji aren't split), falls back to `"Untitled"`.
-  - `buildDuplicateName(baseName, index)` — names a collision: index `1` → `"Title (Duplicate)"`, `2` → `"Title (Duplicate 2)"`, … Trims the base by whole code points when needed so the suffix always fits the macOS filename budget.
+  - `buildDuplicateName(baseName, index)` — names a collision: index `1` → `"Title (1)"`, `2` → `"Title (2)"`, … Trims the base by whole code points when needed so the suffix always fits the macOS filename budget.
   - These run in order: `formatTitleForMacOS(titleCaseAllCaps(stripSocialMediaSuffixes(title)))`.
 - **`src/obsidian/title-fetcher-setting-tab.ts`** — the settings UI. One setting: `appendDuplicateSuffix` (default `true`). `loadSettings` migrates the pre-0.3 `appendNumberOnDuplicate` key onto it.
 - **`src/svelte/`** — currently empty (`.gitkeep`). Svelte tooling (`esbuild-svelte`, `svelte-preprocess`) is wired into the build for future UI components but nothing uses it yet.

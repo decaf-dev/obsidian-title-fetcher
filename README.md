@@ -13,7 +13,7 @@ Drop a `url` property in a note, run the command, and the file is renamed to the
   - Right-clicking a folder offers **Rename notes from URL property**, which renames every markdown note directly inside that folder (processed in small batches to be respectful to servers).
 - **Title cleanup** — strips social-media suffixes (e.g. Instagram's `• Instagram photos and videos`, Threads' `• Threads, Say more`) and decorative emoji. A trailing `(@handle)` is removed when a full first-and-last name precedes it (`Tom Cruise (@tomcruise)` → `Tom Cruise`) but kept when it's the only identifier (`Tom (@tomcruise)`). Shouted, all-caps names are title-cased (`OLIVIA PARKER` → `Olivia Parker`).
 - **Filesystem-safe names** — removes characters that are illegal on macOS or disallowed by Obsidian (`:`, `/`, `\`, `^`, `[`, `]`, `#`, `|`, control characters), collapses whitespace, and truncates to 255 characters.
-- **Duplicate handling** — when a note with the same title already exists, appends `(Duplicate)` (`Title (Duplicate)`, then `Title (Duplicate 2)`, `Title (Duplicate 3)`, …) instead of failing. This can be turned off in settings.
+- **Duplicate handling** — when a note with the same title already exists, appends a number (`Title (1)`, then `Title (2)`, `Title (3)`, …) instead of failing. This can be turned off in settings.
 
 ## Usage
 
@@ -32,7 +32,7 @@ To rename a whole folder at once, right-click the folder in the file explorer an
 
 ## Settings
 
-- **Mark duplicate file names** (default: on) — when a target title is already taken by another note, append `(Duplicate)` — numbered `(Duplicate 2)`, `(Duplicate 3)`, … for further collisions — rather than failing the rename.
+- **Mark duplicate file names** (default: on) — if another note already has the name, add a number to the end: `My Note (1)`, then `(2)`, `(3)`, …. When off, the note keeps its old name.
 
 ## Installation
 

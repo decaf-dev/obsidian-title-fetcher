@@ -17,7 +17,7 @@ export default class TitleFetcherSettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Mark duplicate file names")
 			.setDesc(
-				'If a note with the same title already exists, append "(Duplicate)" — and "(Duplicate 2)", "(Duplicate 3)", … for further collisions — instead of failing.'
+				'If another note already has the name, add a number to the end, like "My Note (1)". When off, the note keeps its old name.'
 			)
 			.addToggle((toggle) =>
 				toggle
