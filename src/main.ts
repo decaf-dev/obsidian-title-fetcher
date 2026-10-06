@@ -9,10 +9,12 @@ import {
 } from "./utils/clean-title";
 interface TitleFetcherSettings {
 	appendDuplicateSuffix: boolean;
+	searchVaultForDuplicates: boolean;
 }
 
 const DEFAULT_SETTINGS: TitleFetcherSettings = {
 	appendDuplicateSuffix: true,
+	searchVaultForDuplicates: false,
 };
 
 export default class TitleFetcherPlugin extends Plugin {
@@ -127,14 +129,25 @@ export default class TitleFetcherPlugin extends Plugin {
 		const build = (name: string) =>
 			normalizePath(dir ? `${dir}/${name}.md` : `${name}.md`);
 
-		let candidate = build(baseName);
+		// With vault-wide search on, a name is also taken if any other note in
+		// the vault already uses it, regardless of folder.
+		const vaultNames = new Set<string>();
+		if (this.settings.searchVaultForDuplicates) {
+			for (const other of this.app.vault.getMarkdownFiles()) {
+				if (other.path !== file.path) vaultNames.add(other.basename);
+			}
+		}
+
+		let name = baseName;
 		let counter = 1;
 		// Skip names already taken by a *different* file; renaming a file to its
 		// own current name is a no-op and must not get a suffix appended.
 		while (true) {
+			const candidate = build(name);
 			const existing = this.app.vault.getAbstractFileByPath(candidate);
-			if (!existing || existing.path === file.path) return candidate;
-			candidate = build(buildDuplicateName(baseName, counter));
+			const takenInFolder = existing && existing.path !== file.path;
+			if (!takenInFolder && !vaultNames.has(name)) return candidate;
+			name = buildDuplicateName(baseName, counter);
 			counter++;
 		}
 	}

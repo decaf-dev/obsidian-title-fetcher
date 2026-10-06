@@ -121,32 +121,26 @@ describe("formatTitleForMacOS", () => {
 });
 
 describe("buildDuplicateName", () => {
-	test("labels the first collision without a number", () => {
-		expect(buildDuplicateName("Olivia Parker", 1)).toBe(
-			"Olivia Parker (Duplicate)",
-		);
+	test("numbers the first collision 1", () => {
+		expect(buildDuplicateName("Olivia Parker", 1)).toBe("Olivia Parker (1)");
 	});
 
 	test("numbers later collisions", () => {
-		expect(buildDuplicateName("Olivia Parker", 2)).toBe(
-			"Olivia Parker (Duplicate 2)",
-		);
-		expect(buildDuplicateName("Olivia Parker", 3)).toBe(
-			"Olivia Parker (Duplicate 3)",
-		);
+		expect(buildDuplicateName("Olivia Parker", 2)).toBe("Olivia Parker (2)");
+		expect(buildDuplicateName("Olivia Parker", 3)).toBe("Olivia Parker (3)");
 	});
 
 	test("trims the base so the suffix fits the macOS limit", () => {
 		const base = "a".repeat(250);
 		const result = buildDuplicateName(base, 2);
-		expect(result).toEndWith(" (Duplicate 2)");
+		expect(result).toEndWith(" (2)");
 		expect([...result].length).toBeLessThanOrEqual(252);
 	});
 
 	test("does not split emoji when trimming a long base", () => {
 		const base = "🐻‍❄️".repeat(100);
 		const result = buildDuplicateName(base, 1);
-		expect(result).toEndWith(" (Duplicate)");
+		expect(result).toEndWith(" (1)");
 		expect([...result].length).toBeLessThanOrEqual(252);
 		expect(result).not.toContain("\ufffd");
 	});
